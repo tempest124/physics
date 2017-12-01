@@ -1,0 +1,22 @@
+
+public class Vector {
+	
+	public float x, y;
+	
+	public Vector() {
+		this(0, 0);
+	}
+	
+	public Vector(float x, float y) {
+		this.x = x;
+		this.y = y;
+	}
+	
+	public Vector addVector(Vector q, Vector a)
+	{
+		q.x+= a.x;
+		q.y+= a.y;
+	    return q;
+	}
+	
+}
