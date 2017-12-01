@@ -1,0 +1,143 @@
+import java.awt.Color;
+import java.awt.Graphics;
+import java.util.ArrayList;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+
+public class Game extends JPanel implements Runnable {
+	
+	private static final long serialVersionUID = 1L;
+	public boolean w = true;
+	public static int time = 0;
+	private JFrame frame;
+	private Thread thread;
+	private boolean isRunning, inGame;
+    float q, a;
+	private ArrayList<Player> mobs;
+	
+	public Game() {
+		frame = new JFrame("Physics engine in 1 dimension"); 
+		frame.setSize(1280, 720);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		frame.getContentPane().setBackground(Color.green);
+		
+		Input.initiate(this);
+		this.setFocusable(true);
+		this.setVisible(true);
+		frame.getContentPane().add(this);
+		
+		mobs = new ArrayList<Player>();
+		
+		Player player = new Player(100 , new Vector(frame.getWidth()/2, frame.getHeight()/2), new Vector(0,0));
+		mobs.add(player);
+		Player player2 = new Player(50 , new Vector(980, 360), new Vector(0,0));
+		mobs.add(player2);
+		
+		frame.setUndecorated(true);
+		JButton quitButton = new JButton("Quit");
+		quitButton.setSize(frame.getWidth()/20, frame.getHeight()/20);
+		quitButton.addActionListener((e) -> { System.exit(0); });
+		this.add(quitButton);
+		
+		frame.setVisible(true);
+		
+	}
+	
+	public void start() {
+		this.isRunning = true;
+		this.inGame = true;
+		thread = new Thread(this, "Updater");
+		thread.start();
+	}
+	
+	public void update() {
+		for (int i = 0; i<mobs.size(); i++) {
+			if (this.inGame)
+				mobs.get(i).update();
+			
+			if (mobs.get(i).isDead) {
+				if (mobs.get(i) instanceof Player && time > 0) {
+					inGame = false;
+					
+				}
+				
+						
+			}
+					}
+		
+			
+			
+		
+		System.out.println("Assume the density of the block is 1kg/pixel and each pixel is one square meter");
+		for(int i = 0; i<mobs.size(); i++)
+		{
+			System.out.println("Kinetic energy of block " + i + " = " + .5 * mobs.get(i).size.x*mobs.get(i).size.x*
+					Math.sqrt(mobs.get(i).velocity.x*mobs.get(i).velocity.x+mobs.get(i).velocity.y*mobs.get(i).velocity.y) + " Joules");	
+			System.out.println("Potential energy of block " + i + " = zero because there is no gravity or height so mgh always results in 0 Joules");
+			if((Input.getKey(Key.A) && mobs.get(i).velocity.x<0) || (Input.getKey(Key.D) && mobs.get(i).velocity.x>0))
+				System.out.println("Amount of force exerted on block " + i + " is " + mobs.get(i).mass*98/60+ " Newtons");
+			else if((Input.getKey(Key.A) && mobs.get(i).velocity.x>0) || (Input.getKey(Key.D) && mobs.get(i).velocity.x<0))
+				System.out.println("Amount of force exerted on block " + i + " is " + mobs.get(i).mass*-1*98/60+ " Newtons");
+			else
+				System.out.println("Amount of force exerted on block " + i + " is " +"0 Newtons");
+		}
+		}
+	
+	@Override
+	public void run() {
+		try {
+			while (this.isRunning) {
+				this.update();
+				this.collisions();
+				frame.repaint();
+				Thread.sleep(1000 / 60);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void paintComponent(Graphics g) {
+		g.setColor(Color.black);
+		g.fillRect(0, 0, frame.getWidth(), frame.getHeight());
+		
+		for (int i = 0; i<mobs.size(); i++) {
+			mobs.get(i).render(g);
+		}
+	}
+	public void collisions()
+	{
+		for(int i = 1; i<mobs.size(); i++)
+		{
+			if(mobs.get(0).position.x+mobs.get(0).size.x*.75>mobs.get(1).position.x // .75 for 100, 1 for 50 1.5 for 25, .63 for 200
+		   &&  mobs.get(0).position.x<mobs.get(1).size.x*1.5+mobs.get(1).position.x // 1.5 for 100, 1 for 50 .75 for 25,  2.5 for 200
+		   &&  mobs.get(0).position.y+mobs.get(0).size.y>mobs.get(1).position.y
+		   &&  mobs.get(0).position.y<mobs.get(1).size.y+mobs.get(1).position.y)
+			{ 
+				System.out.println("hi");
+				q = mobs.get(0).velocity.x;
+				a = mobs.get(i).velocity.x; 
+				mobs.get(0).position.x= mobs.get(i).position.x-mobs.get(i).size.x*1.5f;// 1.5f for 100, 1 for 50, 2.5 for 200      
+			    mobs.get(0).velocity.x=((mobs.get(0).mass-mobs.get(i).mass)/(mobs.get(0).mass+mobs.get(i).mass))*q + ((2*mobs.get(i).mass)/(mobs.get(0).mass+mobs.get(i).mass))*a;  
+	     	    mobs.get(i).velocity.x=((mobs.get(i).mass-mobs.get(0).mass)/(mobs.get(0).mass+mobs.get(i).mass))*a + ((2*mobs.get(0).mass)/(mobs.get(0).mass+mobs.get(i).mass))*q; 
+					 //     (m1-m2)/(m1+m2)*v1 + ((2*m2)/(m1+m2))*m2
+	     	         //     (m2-m1)/(m1+m2)*v2 + ((2*m1)/(m1+m2))*m1
+	     	         //    declaring done at 2:39
+			}				   					    
+			}
+		
+	}
+		
+		
+		
+	
+	public static void main(String[] args) {
+		new Game().start();
+	}
+	
+}
