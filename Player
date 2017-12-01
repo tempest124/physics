@@ -1,0 +1,68 @@
+import java.awt.Color;
+
+import java.awt.Graphics;
+
+
+
+public class Player extends Mob{
+	public Vector velocity;
+	public float offset;
+	public int radius;
+	public float mass;
+	public Player(int size, Vector position, Vector velocity) {
+		this.size = new Vector(size, size);
+		this.position = position;
+		this.velocity = velocity;
+		this.radius = (int)size/2;
+		mass = size*size;
+	}
+	
+	@Override
+	public void update() {
+		if (Input.getKey(Key.D)) {			
+			velocity.x+= 98/size.x;			
+		}
+		if (Input.getKey(Key.A)) {			
+			velocity.x-= 98/size.x;		
+		}
+		/*if (Input.getKey(Key.W)) {		
+			velocity.y-= 98/size.x;		
+		}
+		if (Input.getKey(Key.S)) {		
+			velocity.y+= 98/size.x;		
+		}*/
+		position.x+= velocity.x/60;
+		position.y+= velocity.y/60;		
+        this.resolveCollisions();
+		 
+		if (position.x+radius>1280) {
+			velocity.x*= -1;
+			position.x = 1280-radius;		
+		}
+		if (position.x-radius<0) {
+			velocity.x*= -1;
+			position.x = radius;
+		}
+	    if (position.y+radius>720) {
+	    	velocity.y*= -1;
+	    	position.y = 720-radius;
+	    }
+	    if (position.y-radius<0) {
+	    	velocity.y*= -1;
+	    	position.y = radius;
+	    }
+	}
+	
+	public void resolveCollisions() {
+		
+	}
+	
+	@Override
+	public void render(Graphics g) {
+		g.setColor(Color.lightGray);
+		g.fillRect((int)position.x-radius, (int)position.y-radius, radius*2, radius*2);
+	}
+	
+	
+}
+	
