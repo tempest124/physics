@@ -1,0 +1,14 @@
+import java.awt.Graphics;
+
+
+public abstract class Mob {
+	
+	public Vector position = new Vector(), size = new Vector();
+	
+	public boolean more = false, isDead = false;
+	
+	public abstract void update();
+	
+	public abstract void render(Graphics g);
+	
+}
